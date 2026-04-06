@@ -1,0 +1,420 @@
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+body {
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  background: #f5f5f0;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+
+/* ── Root wrapper ── */
+.app-root {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ── Header ── */
+.app-header {
+  text-align: center;
+  padding: 2rem 1rem 1.6rem;
+  margin-bottom: 2rem;
+  background: #ef5350;
+  border-radius: 16px;
+  border-bottom: 5px solid #d32f2f;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-header::before {
+  content: '';
+  position: absolute;
+  right: -60px;
+  top: -60px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  pointer-events: none;
+}
+.app-header::after {
+  content: '';
+  position: absolute;
+  left: -40px;
+  bottom: -50px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  pointer-events: none;
+}
+
+.app-header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #feca1b;
+  /* Blue outline border using text-stroke + shadow stack */
+  -webkit-text-stroke: 2px #3761a8;
+  paint-order: stroke fill;
+  text-shadow:
+    2px  2px 0 #3761a8,
+   -1px -1px 0 #3761a8,
+    1px -1px 0 #3761a8,
+   -1px  1px 0 #3761a8;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.4rem;
+}
+
+.app-header p {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.5px;
+}
+
+/* ── Two-panel layout — equal height ── */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+/* ── Shared panel base ── */
+.left-panel,
+.right-panel {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 2px solid #e8e8e8;
+  border-bottom: 4px solid #e0e0e0;
+  padding: 1.5rem 1.4rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.left-panel {
+  overflow-y: auto;
+}
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ── Panel title ── */
+.panel-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #ef5350;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.panel-divider {
+  border: none;
+  border-top: 2px solid #f0f0f0;
+  margin: 0.85rem 0;
+}
+
+/* ── Slider block ── */
+.slider-block {
+  margin-bottom: 1.0rem;
+}
+
+.slider-question {
+  font-size: 0.76rem;
+  color: #888;
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+/* Slider row: track takes all space, stat label at end */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider-row .pokemon-slider {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 2px solid;
+  min-width: 44px;
+  text-align: center;
+  white-space: nowrap;
+  background: #fff;
+}
+
+/* ── Dash slider track + handle ── */
+.pokemon-slider .rc-slider-rail {
+  background: #ebebeb;
+  height: 5px;
+}
+
+.pokemon-slider .rc-slider-track {
+  height: 5px;
+}
+
+.pokemon-slider .rc-slider-handle {
+  width: 18px;
+  height: 18px;
+  margin-top: -6.5px;
+  border: 2px solid;
+  background: #fff;
+  opacity: 1;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+
+.pokemon-slider .rc-slider-handle:hover,
+.pokemon-slider .rc-slider-handle:active {
+  box-shadow: 0 0 0 4px rgba(239,83,80,0.18);
+}
+
+/* ── Tooltip: white pill, dark text, soft shadow ── */
+.pokemon-slider .rc-slider-tooltip {
+  z-index: 10;
+}
+
+.pokemon-slider .rc-slider-tooltip-inner {
+  background: #ffffff !important;
+  color: #1a1a2e !important;
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-family: 'Nunito', system-ui, sans-serif;
+  padding: 2px 9px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18) !important;
+  border: 1px solid #e8e8e8;
+  min-width: 28px;
+  text-align: center;
+}
+
+.pokemon-slider .rc-slider-tooltip-arrow {
+  border-right-color: #ffffff !important;
+  filter: drop-shadow(-1px 0 1px rgba(0,0,0,0.08));
+}
+
+/* ── Predict button ── */
+.predict-btn {
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 12px;
+  border: none;
+  background: #ef5350;
+  color: #feca1b;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  margin-top: 0.25rem;
+  border-bottom: 3px solid #d32f2f;
+  font-family: inherit;
+  -webkit-text-stroke: 0px #b5862a;
+}
+
+.predict-btn:hover  { background: #f44336; }
+.predict-btn:active { transform: scale(0.98); border-bottom-width: 1px; margin-top: 0.43rem; }
+
+/* ── Right panel inner ── */
+.right-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+/* ── Artwork — square frame, bigger ── */
+.artwork-wrap {
+  width: 280px;
+  height: 280px;
+  border-radius: 16px;
+  background: #f9f9f6;
+  border: 3px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: box-shadow 0.4s, border-color 0.4s;
+}
+
+.artwork-placeholder {
+  font-size: 5rem;
+  color: #ddd;
+  user-select: none;
+}
+
+.pokemon-img {
+  width: 260px;
+  height: 260px;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+/* ── Legendary glow ── */
+.legendary-glow {
+  box-shadow:
+    0 0 24px 6px  #f59e0b66,
+    0 0 56px 14px #f59e0b22;
+  border-color: #f59e0b88;
+}
+
+/* ── Name ── */
+.name-wrap {
+  text-align: center;
+}
+
+.pokemon-name {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: -0.3px;
+}
+
+.legendary-name {
+  background: linear-gradient(90deg, #d97706, #fcd34d, #f59e0b, #fcd34d, #d97706);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 2.5s linear infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.legendary-badge {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+
+/* ── Type badges ── */
+.badges-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.type-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 4px 16px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+/* ── Generation label ── */
+.gen-label {
+  font-size: 0.76rem;
+  color: #aaa;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ── Await state ── */
+.await-text {
+  color: #ccc;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 2rem;
+  font-weight: 600;
+}
+
+/* ── Confidence block ── */
+.conf-block {
+  width: 100%;
+}
+
+.conf-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.conf-label {
+  font-size: 0.74rem;
+  color: #aaa;
+  font-weight: 600;
+}
+
+.conf-value {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #ef5350;
+}
+
+.conf-track {
+  width: 100%;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.conf-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ef5350, #ff8a80);
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+/* ── Reset button ── */
+.reset-btn {
+  width: 100%;
+  padding: 0.65rem;
+  border-radius: 10px;
+  border: 2px solid #e8e8e8;
+  background: transparent;
+  color: #aaa;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+.reset-btn:hover {
+  border-color: #ef5350;
+  color: #ef5350;
+}
+
+/* ── Responsive ── */
+@media (max-width: 680px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+  .app-header h1 {
+    font-size: 1.6rem;
+  }
+  .artwork-wrap {
+    width: 220px;
+    height: 220px;
+  }
+  .pokemon-img {
+    width: 200px;
+    height: 200px;
+  }
+}
