@@ -1,6 +1,8 @@
 import dash
 from dash import dcc, html, Input, Output, State
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 import joblib
 import numpy as np
 import os
@@ -138,6 +140,94 @@ SLIDER_IDS = [
 #  COMPONENT BUILDERS
 # ─────────────────────────────────────────────────────────────
 
+# ─────────────────────────────────────────────────────────────
+#  CHART GENERATORS (NEW)
+# ─────────────────────────────────────────────────────────────
+def empty_figure():
+    """Returns a clean, empty figure for before the user hits predict."""
+    fig = go.Figure()
+    fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(visible=False), yaxis=dict(visible=False),
+        annotations=[dict(text="Awaiting Prediction...", x=0.5, y=0.5, showarrow=False, font=dict(size=14, color="#ccc"))]
+    )
+    return fig
+
+def generate_radar_chart(user_stats, predicted_name):
+    pred_data = data[data["Name"] == predicted_name].iloc[0]
+    pred_stats = [pred_data[col] for col in BASE_COLS]
+    
+    categories = BASE_COLS + [BASE_COLS[0]]
+    u_stats = user_stats + [user_stats[0]]
+    p_stats = pred_stats + [pred_stats[0]]
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(r=u_stats, theta=categories, fill='toself', name='You', line_color='#ef5350'))
+    fig.add_trace(go.Scatterpolar(r=p_stats, theta=categories, fill='toself', name=predicted_name, line_color='#2E7AB8'))
+    
+    fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 255])),
+        showlegend=True, margin=dict(l=20, r=20, t=20, b=20),
+        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def empty_twins_panel():
+    """Returns placeholder text for the Twins panel before prediction."""
+    return html.P("Awaiting Prediction...", className="await-text")
+
+def generate_twins_list(user_stats):
+    """Generates a clean HTML list of the Top 10 closest Pokémon."""
+    stat_matrix = data[BASE_COLS].values
+    distances = np.linalg.norm(stat_matrix - user_stats, axis=1)
+    
+    # Get top 10 closest
+    closest_idx = np.argsort(distances)[:10]
+    twins = data.iloc[closest_idx]['Name'].tolist()
+    
+    items = []
+    for i, name in enumerate(twins):
+        items.append(html.Div([
+            html.Span(f"#{i+1}", className="twin-rank"),
+            html.Span(name)
+        ], className="twin-item"))
+        
+    return html.Div(items, className="twins-list")
+
+def generate_scatter_chart(user_stats):
+    """Generates a clean scatter plot with grey background dots and a glowing gold user pin."""
+    # Plot all Pokemon as subtle grey dots, no color mapping or legend
+    fig = px.scatter(data, x="Attack", y="Defense", hover_data=["Name"])
+    fig.update_traces(marker=dict(color='#e0e0e0', size=6), opacity=0.7)
+    
+    # Outer Glow Layer for the User Point
+    fig.add_trace(go.Scatter(
+        x=[user_stats[1]], y=[user_stats[2]], # 1 is Attack, 2 is Defense
+        mode='markers',
+        marker=dict(size=40, color='rgba(254, 202, 27, 0.25)'), # Transparent Gold
+        showlegend=False, hoverinfo='skip'
+    ))
+    
+    # Inner Solid Gold User Point
+    fig.add_trace(go.Scatter(
+        x=[user_stats[1]], y=[user_stats[2]],
+        mode='markers+text',
+        marker=dict(size=18, color='#feca1b', line=dict(width=3, color='#ffffff')),
+        # Wrapped the text in <b> tags for bolding
+        text=["<b>YOU ARE HERE</b>"], textposition="top center", 
+        # Removed the invalid 'weight' property
+        textfont=dict(color="#d97706", size=12),
+        name="You", showlegend=False
+    ))
+    
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0),
+        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+        showlegend=False # Ensure no legend shows up
+    )
+    return fig
+
 def get_sprite_url(name):
     pid = name_to_id.get(name)
     if pid:
@@ -266,29 +356,43 @@ app.layout = html.Div([
     ], className="app-header"),
 
     html.Main([
+        # --- ROW 1: Existing Left & Right Panels ---
+        html.Div([
+            html.Section([
+                html.H3("Tell us about yourself", className="panel-title"),
+                html.Hr(className="panel-divider"),
+                *[make_slider(*m) for m in STAT_META],
+                html.Hr(className="panel-divider"),
+                html.Button("Find my Pokémon →", id="btn-predict", className="predict-btn", n_clicks=0),
+            ], className="left-panel"),
 
-        # Left panel — sliders
-        html.Section([
-            html.H3("Tell us about yourself", className="panel-title"),
-            html.Hr(className="panel-divider"),
-            *[make_slider(*m) for m in STAT_META],
-            html.Hr(className="panel-divider"),
-            html.Button(
-                "Find my Pokémon →",
-                id="btn-predict",
-                className="predict-btn",
-                n_clicks=0
-            ),
-        ], className="left-panel"),
+            html.Section(id="right-panel", children=empty_right_panel(), className="right-panel"),
+        ], className="main-layout"),
 
-        # Right panel — result
-        html.Section(
-            id="right-panel",
-            children=empty_right_panel(),
-            className="right-panel",
-        ),
+        # --- ROW 2: Stat Twins & Radar Chart ---
+        html.Div([
+            html.Section([
+                html.H3("Your Stat Twins", className="panel-title"),
+                # Changed from dcc.Graph to html.Div
+                html.Div(id="panel-twins", children=empty_twins_panel())
+            ], className="square-panel", style={"overflowY": "auto"}), # Added scrolling just in case
 
-    ], className="main-layout"),
+            html.Section([
+                html.H3("Stat Comparison", className="panel-title"),
+                dcc.Graph(id="chart-radar", figure=empty_figure(), style={"height": "350px"})
+            ], className="square-panel"),
+        ], className="secondary-layout"),
+
+
+        # --- ROW 3: Global Feature Space ---
+        html.Div([
+            html.Section([
+                html.H3("Global Feature Space", className="panel-title"),
+                dcc.Graph(id="chart-scatter", style={"height": "400px"})
+            ], className="wide-panel"),
+        ], className="tertiary-layout"),
+
+    ], className="main-layout-wrapper"), # Note: wrap everything in a master div if needed,
 
 ], className="app-root")
 
@@ -298,17 +402,30 @@ app.layout = html.Div([
 # ─────────────────────────────────────────────────────────────
 
 @app.callback(
-    Output("right-panel", "children"),
+    [Output("right-panel", "children"),
+     Output("panel-twins", "children"), # Changed to panel-twins / children
+     Output("chart-radar", "figure"),
+     Output("chart-scatter", "figure")],
     Input("btn-predict", "n_clicks"),
     [State(sid, "value") for sid in SLIDER_IDS],
     prevent_initial_call=True,
 )
 def handle_prediction(n_predict, hp, atk, dfn, spa, spd, spe):
+    user_stats = [hp, atk, dfn, spa, spd, spe]
+    
     name, confidence, power_label, is_legendary, generation = predict(
         hp, atk, dfn, spa, spd, spe
     )
-    return result_right_panel(name, confidence, power_label, is_legendary, generation)
+    
+    panel_ui = result_right_panel(name, confidence, power_label, is_legendary, generation)
+    
+    # Generate our new HTML list instead of a chart
+    ui_twins = generate_twins_list(user_stats) 
+    
+    fig_radar = generate_radar_chart(user_stats, name)
+    fig_scatter = generate_scatter_chart(user_stats)
 
+    return panel_ui, ui_twins, fig_radar, fig_scatter
 
 if __name__ == "__main__":
     app.run(debug=True)
