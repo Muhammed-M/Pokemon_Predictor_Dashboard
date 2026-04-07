@@ -122,13 +122,13 @@ TYPE_TEXT.update({"Electric": "#1a1200", "Ground": "#1a1200"})
 
 STAT_META = [
     #  stat       question                                       min  max  default  color
-    ("HP",       "How would you describe your stamina?",         1,   255, 65,  "#1D9E75"),
-    ("Attack",   "How hard do you hit back when challenged?",    5,   190, 79,  "#E8590C"),
-    ("Defense",  "How well do you handle taking hits?",          5,   230, 73,  "#2E7AB8"),
-    ("Sp. Atk",  "How sharp is your mind under pressure?",      10,  194, 72,  "#D4B800"),
-    ("Sp. Def",  "How resilient are you mentally?",             20,  230, 71,  "#4A9E43"),
-    ("Speed",    "How fast do you move through life?",           5,   180, 68,  "#C06FBF"),
-]
+    ("HP",       "Your Energy Battery (Stamina)",                 1,   300, 35,  "#1D9E75"),
+    ("Attack",   "Your Direct Strength (Confidence )",            5,   210, 55,  "#E8590C"),
+    ("Defense",  "Toughness (Physical Resilience)",               5,   270, 40,  "#2E7AB8"),
+    ("Sp. Atk",  "Brain Power (Creativity & Logic)",              10,  220, 50,  "#D4B800"),
+    ("Sp. Def",  "Inner Calm (Mental Stability)",                 20,  260, 50,  "#4A9E43"),
+    ("Speed",    "Quick Reflexes (Adaptability)",                 5,   205, 90,  "#C06FBF"),
+] 
 
 SLIDER_IDS = [
     f"slider-{s.lower().replace(' ', '_').replace('.', '')}"
@@ -372,7 +372,7 @@ app.layout = html.Div([
         # --- ROW 2: Stat Twins & Radar Chart ---
         html.Div([
             html.Section([
-                html.H3("Your Stat Twins", className="panel-title"),
+                html.H3("Top 10 Pokémon Like You", className="panel-title"),
                 # Changed from dcc.Graph to html.Div
                 html.Div(id="panel-twins", children=empty_twins_panel())
             ], className="square-panel", style={"overflowY": "auto"}), # Added scrolling just in case
@@ -387,7 +387,7 @@ app.layout = html.Div([
         # --- ROW 3: Global Feature Space ---
         html.Div([
             html.Section([
-                html.H3("Global Feature Space", className="panel-title"),
+                html.H3("Pokémon Space", className="panel-title"),
                 dcc.Graph(id="chart-scatter", style={"height": "400px"})
             ], className="wide-panel"),
         ], className="tertiary-layout"),
@@ -428,4 +428,4 @@ def handle_prediction(n_predict, hp, atk, dfn, spa, spd, spe):
     return panel_ui, ui_twins, fig_radar, fig_scatter
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run_server(debug=False, host='0.0.0.0', port=7860)
