@@ -40,7 +40,7 @@ The original dataset is expanded to make the model more robust.
 - The generated values stay close to the original Pokemon stats.
 - This helps the models learn better from more examples.
 
-![Data Augmentation Distribution](assets\data_aug_dist.png)
+![Data Augmentation Distribution](assets/data_aug_dist.png)
 
 ## 4. Model Architecture
 
